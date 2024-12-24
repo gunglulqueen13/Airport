@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        form {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+        }
+        input, button {
+            padding: 8px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .register-button {
+            background-color: #2196F3;
+            margin-top: 10px;
+        }
+        .register-button:hover {
+            background-color: #1E88E5;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h2>Login</h2>
+<form id="loginForm">
+    <label>Username:
+        <input type="text" id="username" required>
+    </label>
+    <label>Password:
+        <input type="password" id="password" required>
+    </label>
+    <button type="submit">Login</button>
+    <button type="button" class="register-button" onclick="window.location.href='/register'">Register</button>
+    <div class="error-message" id="error-message">Invalid username or password.</div>
+</form>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const errorMessageElement = document.getElementById("error-message");
+
+        // Отправка запроса на сервер
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ username, password })
+        });
+
+        if (response.ok) {
+            // Если вход успешен, перенаправляем на страницу с рейсами
+            window.location.href = "flights";  // Переход на главную страницу
+        } else {
+            // Если вход не удался, показываем ошибку
+            const errorText = await response.text();  // Читаем текст ошибки от сервера
+            errorMessageElement.textContent = errorText; // Обновляем текст ошибки
+            errorMessageElement.style.display = "block";  // Показываем ошибку
+        }
+    });
+</script>
+</body>
+</html>

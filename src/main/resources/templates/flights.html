@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airport Flight Management</title>
+  <style>
+    /* Основные стили */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      align-items: center;
+    }
+    .video-bg {
+       width: 100vw;
+       height: 100vh;
+       object-fit: cover;
+       position: fixed;
+       left: 0;
+       right: 0;
+       top: 0;
+       bottom: 0;
+       z-index: -1;
+    }
+
+    .effects {
+      position: absolute;
+      object-fit: cover;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.6);
+    }
+
+    .video-bg__content {
+      z-index: 3;
+      color: #ffffff;
+      font-size: 50px;
+    }
+
+    .main {
+      max-width: 1600px;
+      margin: 0 auto;
+      margin-top: 50px;
+      padding: 0 20px;
+    }
+
+    /* Хедер */
+    .header {
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.5em; /* Уменьшаем размер, чтобы текст помещался */
+      font-weight: lighter;
+      color: #60a5ff;
+      white-space: nowrap; /* Не даем тексту переноситься на новую строку */
+    }
+
+    .header span {
+      margin: 0;
+      font-size: 0.9em;
+      font-weight: lighter;
+      color: #f1f1f1;
+    }
+
+    .header .buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .header .buttons button {
+      width: 200px;
+      font-size: 18px;
+      padding: 10px;
+      border: 2px solid;
+      color: #fff;
+      cursor: pointer;
+      background: none;
+      justify-content: center;
+      display: flex;
+      align-items: center;
+      gap: 30px
+    }
+
+    .header .buttons button:hover {
+      background-color: #d32f2f;
+    }
+
+    .header .buttons .tickets-button {
+      background-color: none;
+      width: 200px;
+      font-size: 18px;
+      padding: 10px;
+      border: 2px solid;
+      color: #fff;
+      cursor: pointer;
+      justify-content: center;
+      display: flex;
+      align-items: center;
+      gap: 30px
+    }
+
+    .header .buttons .tickets-button:hover {
+      background-color: #388e3c;
+    }
+
+    /* Стили для формы поиска */
+    .search-form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+    }
+
+    .search-form input {
+      width: 300px;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 1em;
+      color: #f1f1f1;
+      background-color: transparent;
+      margin-top: 10px;
+      transition: border-color 0.3s ease;
+    }
+
+    .search-form input:focus {
+      outline: none;
+      border-color: #1976d2;
+    }
+
+    .search-form input::placeholder {
+      color: #f1f1f1; /* Яркий цвет для текста в поле поиска */
+    }
+
+    /* Карточки рейсов */
+    .flight-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      margin: 0 auto;
+      max-width: 1200px;
+      margin-top: 100px; /* Отступ, чтобы контейнер не перекрывал хедер */
+    }
+
+    .flight-card {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      width: 280px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      color: #199eff;
+      margin: 15px;
+    }
+
+    .flight-card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .flight-card h2 {
+      font-size: 1.9em;
+      color: #f1f1f1;
+      margin-bottom: 15px;
+    }
+
+    .flight-card p {
+      margin: 10px 0;
+      color: #90caf9;
+      font-size: 1.3em;
+    }
+
+    .flight-card .price {
+      font-weight: bold;
+      color: #0caf9;
+      font-size: 1.3em;
+    }
+
+    .flight-card button {
+      margin-top: 15px;
+      width: 200px;
+      font-size: 18px;
+      padding: 10px;
+      border: 2px solid;
+      color: #fff;
+      cursor: pointer;
+      background: none;
+    }
+
+    .flight-card button:hover {
+      background: #1976d2;
+      transform: scale(1.05);
+    }
+
+    /* Стили для всплывающего уведомления */
+    #notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      font-size: 1em;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    #notification.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+
+    #notification.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+
+    .admin-section {
+      display: none; /* Скрыто по умолчанию */
+      margin: 150px 20px -70px 20px;
+      width: 1025px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      color: white;
+    }
+
+    .admin-section h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .admin-section form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .admin-section input,
+    .admin-section button {
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: none;
+    }
+
+    .admin-section button {
+      background: #1976d2;
+      color: white;
+      cursor: pointer;
+    }
+
+    .admin-section button:hover {
+      background: #155b9a;
+    }
+
+    .delete-button {
+      background: #d32f2f;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .delete-button:hover {
+      background: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Хедер -->
+<div class="header">
+  <h1>Аэропорт <span> Пассажирское расписание и перевозки</span></h1>
+  <!-- Форма поиска по центру -->
+  <div class="search-form">
+    <input type="text" id="searchDestination" placeholder="Введите пункт назначения">
+  </div>
+  <div class="buttons">
+    <button class="tickets-button" onclick="window.location.href='/tickets'">Мои билеты <img src="/source/ticket.svg" alt="Tickets Icon" style="width: 22px; height: 22px;"/></button>
+    <button class="tickets-button" onclick="window.location.href='/statistics'">Статистика</button>
+    <button onclick="window.location.href='/logout'">Выйти <img src="/source/logout.svg" alt="Tickets Icon" style="width: 22px; height: 22px;"/></button>
+  </div>
+</div>
+
+<video class="video-bg" src="/source/video_flight.mp4" type="video/mp4" autoplay muted loop></video>
+
+<div class="admin-section" id="adminSection">
+  <h2>Добавить рейс</h2>
+  <form id="addFlightForm">
+    <input type="text" id="newDestination" placeholder="Пункт назначения" required>
+    <input type="text" id="newFlightNumber" placeholder="Номер рейса" required>
+    <input type="text" id="newTypeCategory" placeholder="Категория" required>
+    <input type="number" id="newPrice" placeholder="Цена" required>
+    <button type="submit">Добавить рейс</button>
+  </form>
+</div>
+
+<!-- Контейнер карточек -->
+<div class="flight-container" id="flightContainer"></div>
+
+<!-- Всплывающее уведомление -->
+<div id="notification" class="hidden">
+  <p>Билет добавлен в раздел "Мои билеты"</p>
+</div>
+
+<script>
+  let searchQuery = '';
+  let searchTimeout;
+  let flightToPurchase;
+
+  async function loadFlights(destination = '') {
+  try {
+    const response = await fetch(`/api/flights?destination=${destination}`);
+    if (!response.ok) {
+      alert("Failed to load flights: " + response.statusText);
+      return;
+    }
+
+    var { flights, userRole } = await response.json();
+    const container = document.getElementById('flightContainer');
+    container.innerHTML = '';
+    flights = flights.reverse()
+
+    flights.forEach(flight => {
+      const card = document.createElement('div');
+      card.className = 'flight-card';
+      card.innerHTML = `
+        <h2>${flight.destination}</h2>
+        <p>Номер рейса: ${flight.flightNumber}</p>
+        <p>Категория: ${flight.typeCategory}</p>
+        <p class="price">Цена: $${flight.price}</p>
+        <button onclick="purchaseTicket(${flight.id})">Купить билет</button>
+        ${
+          userRole === 'ROLE_ADMIN'
+            ? `<button class="delete-button" onclick="deleteFlight(${flight.id})">Удалить рейс</button>`
+            : ''
+        }
+      `;
+      container.appendChild(card);
+    });
+
+    if (userRole === 'ROLE_ADMIN') {
+      document.getElementById('adminSection').style.display = 'block';
+    } else {
+      document.getElementById('adminSection').style.display = 'none';
+    }
+  } catch (error) {
+    console.error("Error loading flights:", error);
+    alert("An unexpected error occurred while loading flights.");
+  }
+}
+
+
+  function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.classList.remove('hidden');
+    notification.classList.add('show');
+
+    setTimeout(() => {
+      notification.classList.remove('show');
+      notification.classList.add('hidden');
+    }, 3000);
+  }
+
+  async function addFlight(event) {
+    event.preventDefault(); // Предотвращает стандартное поведение отправки формы
+
+    const destination = document.getElementById('newDestination').value;
+    const flightNumber = document.getElementById('newFlightNumber').value;
+    const typeCategory = document.getElementById('newTypeCategory').value;
+    const price = parseFloat(document.getElementById('newPrice').value);
+
+    console.log('Adding flight:', { destination, flightNumber, typeCategory, price });
+
+    try {
+        const response = await fetch('/api/flights', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ destination, flightNumber, typeCategory, price })
+        });
+
+        if (response.ok) {
+            showNotification('Рейс успешно добавлен!');
+            loadFlights(); // Перезагружаем список рейсов
+            document.getElementById('addFlightForm').reset(); // Сбрасываем форму
+        } else {
+            const error = await response.json();
+            console.error('Server error:', error);
+            showNotification('Ошибка при добавлении рейса.');
+        }
+    } catch (error) {
+        console.error('Error adding flight:', error);
+        showNotification('Произошла ошибка при добавлении рейса.');
+    }
+}
+
+// Привязываем обработчик события
+document.getElementById('addFlightForm').addEventListener('submit', addFlight);
+
+  async function purchaseTicket(flightId) {
+    try {
+      const response = await fetch('/api/flights/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ flightId })
+      });
+
+      if (response.ok) {
+        showNotification('Билет успешно куплен!');
+        loadFlights(searchQuery);
+      } else {
+        showNotification('Не удалось купить билет.');
+      }
+    } catch (error) {
+      console.error('Error purchasing ticket:', error);
+      showNotification('Произошла ошибка при покупке билета.');
+    }
+  }
+
+  async function deleteFlight(flightId) {
+      try {
+        const response = await fetch(`/api/flights/${flightId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          showNotification('Рейс успешно удалён!');
+          loadFlights(searchQuery);
+        } else {
+          showNotification('Ошибка при удалении рейса.');
+        }
+      } catch (error) {
+        console.error('Error deleting flight:', error);
+        showNotification('Произошла ошибка при удалении рейса.');
+      }
+    }
+
+
+  document.getElementById('searchDestination').addEventListener('input', (event) => {
+    searchQuery = event.target.value;
+
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => loadFlights(searchQuery), 500);
+  });
+
+
+
+  loadFlights();
+</script>
+
+</body>
+</html>

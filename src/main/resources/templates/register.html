@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        form {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+        }
+        input, select, button {
+            padding: 8px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .login-button {
+            background-color: #2196F3;
+            margin-top: 10px;
+        }
+        .login-button:hover {
+            background-color: #1E88E5;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h2>Register</h2>
+<form id="registerForm">
+    <label>Username:
+        <input type="text" id="username" required>
+    </label>
+    <label>Password:
+        <input type="password" id="password" required>
+    </label>
+    <button type="submit">Register</button>
+    <button type="button" class="login-button" onclick="window.location.href='/login.html'">Go to Login</button>
+    <div class="error-message" id="error-message">Username already exists.</div>
+</form>
+
+<script>
+    document.getElementById("registerForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const user = { username, password };
+        const errorMessageElement = document.getElementById("error-message");
+
+        // Отправляем запрос на регистрацию пользователя
+        const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user),
+        });
+
+        if (response.ok) {
+            alert("User registered successfully!");
+            window.location.href = "/login.html";
+        } else {
+            const errorText = await response.text();
+            errorMessageElement.textContent = errorText; // Обновляем текст ошибки
+            errorMessageElement.style.display = "block";  // Показываем ошибку
+        }
+    });
+</script>
+</body>
+</html>
