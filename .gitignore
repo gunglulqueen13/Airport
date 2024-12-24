@@ -3,7 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-src/main/resources/static/source/video_flight.mp4
+src/main/resources/static/source/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
